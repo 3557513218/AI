@@ -25,6 +25,9 @@ load_dotenv()
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
 
+KNOWLEDGE_DIR = Path("knowledge")
+KNOWLEDGE_DIR.mkdir(exist_ok=True)
+
 ALLOWED_IMAGE_TYPES = {"image/png", "image/jpeg", "image/webp", "image/gif"}
 ALLOWED_CODE_EXTENSIONS = {
     ".py", ".js", ".ts", ".jsx", ".tsx", ".html", ".css", ".json",
@@ -43,6 +46,13 @@ OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "")
 # 如果未指定模型，自动检测
 VISION_MODEL = os.getenv("VISION_MODEL", "")
+
+# AI 后端选择（ollama 或 dashscope）
+AI_BACKEND = os.getenv("AI_BACKEND", "dashscope").lower()
+
+# DashScope (通义千问) 配置
+DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
+DASHSCOPE_MODEL = os.getenv("DASHSCOPE_MODEL", "qwen-plus")
 
 # ============ 日志 ============
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -153,6 +163,85 @@ def pick_best_model(models: list[str], prefer_vision: bool = False) -> str:
     return models[0]
 
 
+# ============ DashScope (通义千问) 工具函数 ============
+async def dashscope_chat(messages: list, model: str = None) -> str:
+    """调用 DashScope 非流式接口"""
+    if not DASHSCOPE_API_KEY:
+        raise HTTPException(status_code=500, detail="未配置 DashScope API Key，请在 .env 中设置 DASHSCOPE_API_KEY")
+
+    url = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {DASHSCOPE_API_KEY}",
+        "Content-Type": "application/json",
+    }
+    data = {
+        "model": model or DASHSCOPE_MODEL,
+        "messages": messages,
+        "temperature": 0.3,
+        "max_tokens": 8192,
+    }
+    async with httpx.AsyncClient(timeout=120.0) as client:
+        resp = await client.post(url, headers=headers, json=data)
+        if resp.status_code == 401:
+            raise HTTPException(status_code=500, detail="API Key 无效，请检查 .env 中的 DASHSCOPE_API_KEY")
+        resp.raise_for_status()
+        result = resp.json()
+        return result["choices"][0]["message"]["content"]
+
+
+async def dashscope_stream(messages: list, model: str = None):
+    """流式调用 DashScope API (OpenAI 兼容格式)"""
+    if not DASHSCOPE_API_KEY:
+        yield f"data: {json.dumps({'type': 'error', 'content': '未配置 DashScope API Key'})}\n\n"
+        return
+
+    url = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {DASHSCOPE_API_KEY}",
+        "Content-Type": "application/json",
+    }
+    data = {
+        "model": model or DASHSCOPE_MODEL,
+        "messages": messages,
+        "stream": True,
+        "temperature": 0.3,
+        "max_tokens": 8192,
+    }
+    try:
+        async with httpx.AsyncClient(timeout=300.0) as client:
+            async with client.stream("POST", url, headers=headers, json=data) as response:
+                if response.status_code == 401:
+                    yield f"data: {json.dumps({'type': 'error', 'content': 'API Key 无效，请检查 .env 中的 DASHSCOPE_API_KEY'})}\n\n"
+                    return
+                response.raise_for_status()
+
+                async for line in response.aiter_lines():
+                    if not line.startswith("data: "):
+                        continue
+                    chunk = line[6:]
+                    if chunk == "[DONE]":
+                        break
+                    try:
+                        data = json.loads(chunk)
+                        delta = data.get("choices", [{}])[0].get("delta", {})
+                        content = delta.get("content", "")
+                        if content:
+                            yield f"data: {json.dumps({'type': 'text', 'content': content})}\n\n"
+                    except json.JSONDecodeError:
+                        continue
+
+        yield f"data: {json.dumps({'type': 'done'})}\n\n"
+
+    except httpx.HTTPStatusError as e:
+        error_msg = f"DashScope 请求失败: {e.response.text[:200]}"
+        logger.error(error_msg)
+        yield f"data: {json.dumps({'type': 'error', 'content': error_msg})}\n\n"
+    except Exception as e:
+        error_msg = f"DashScope 错误: {str(e)}"
+        logger.error(error_msg)
+        yield f"data: {json.dumps({'type': 'error', 'content': error_msg})}\n\n"
+
+
 # ============ 工具函数 ============
 def is_vision_model(model: str) -> bool:
     """判断模型是否支持图片分析"""
@@ -170,19 +259,60 @@ def get_file_category(filename: str, content_type: str) -> str:
     return "other"
 
 
+def search_knowledge_base(query: str) -> str:
+    """搜索知识库，返回与查询相关的内容"""
+    import re
+    if not KNOWLEDGE_DIR.exists():
+        return ""
+
+    # 提取中文词组（2字以上）和英文单词
+    chinese_terms = re.findall(r'[一-鿿]{2,}', query)
+    english_terms = [w.lower() for w in re.findall(r'[a-zA-Z]{2,}', query)]
+    terms = chinese_terms + english_terms
+
+    if not terms:
+        return ""
+
+    results = []
+    for file_path in sorted(KNOWLEDGE_DIR.iterdir()):
+        if not file_path.is_file() or file_path.suffix.lower() not in {".md", ".txt", ".json", ".csv"}:
+            continue
+        try:
+            content = file_path.read_text(encoding="utf-8")
+        except Exception:
+            continue
+
+        content_lower = content.lower()
+        match_count = sum(1 for t in terms if t.lower() in content_lower)
+
+        if match_count > 0:
+            # 用匹配度倒序排列
+            results.append((match_count, file_path.stem, content))
+
+    if not results:
+        return ""
+
+    results.sort(key=lambda x: x[0], reverse=True)
+
+    parts = []
+    for _, filename, content in results[:3]:
+        parts.append(f"以下是参考资料「{filename}」中的内容：\n{content.strip()}")
+
+    return "\n\n".join(parts)
+
+
 def get_system_prompt() -> str:
     from datetime import date
     today = date.today()
     return f"""你是智能 AI 助手，今天是 {today.year} 年 {today.month} 月 {today.day} 日。请遵循以下原则：
 
-1. **回答问题**：准确、简洁、有深度，对复杂问题可以分步骤解释
-2. **分析图片**：当用户上传图片时，仔细观察图片内容，详细描述并回答相关问题
-3. **分析代码**：当用户上传代码时，理解代码逻辑，指出潜在问题，提供优化建议
-4. **编程帮助**：提供代码示例、debug 建议、架构设计等
+1. **开发任务积极协助**：当用户请你写代码、开发项目、制作软件时，要尽力提供帮助。生成完整的代码、给出步骤指导、设计架构，而不是简单说做不到
+2. **事实核查要诚实**：当被问到关于特定人物、事件、日期等具体事实时，如果你不确定，必须坦诚说明"我无法确认"，不要编造不存在的信息
+3. **分析图片**：用户上传图片时，仔细观察并描述内容
+4. **分析代码**：用户上传代码时，分析逻辑并提供优化建议
 5. **格式规范**：使用 Markdown 格式，代码块标明语言
-6. **中文优先**：默认使用中文回答，除非用户用其他语言提问
-7. **诚实透明**：如果不确定或不知道，坦诚说明，不要编造信息
-8. **安全负责**：拒绝回答违法、有害、不道德的问题"""
+6. **中文优先**：默认使用中文回答
+7. **安全负责**：拒绝回答违法、有害、不道德的问题"""
 
 
 async def read_uploaded_file(file: UploadFile) -> tuple[bytes, str]:
@@ -199,9 +329,21 @@ def build_ollama_messages(
     file_name: str = None,
     file_category: str = None,
     content_type: str = None,
+    knowledge_context: str = None,
 ) -> list[dict]:
     """构建 Ollama 格式的消息列表"""
-    messages = [{"role": "system", "content": get_system_prompt()}]
+    system_prompt = get_system_prompt()
+
+    # 如果有知识库匹配结果，注入到系统提示中
+    if knowledge_context:
+        system_prompt += (
+            '\n\n以下是用户知识库中与问题相关的参考资料，请**优先基于这些资料**回答。'
+            '如果资料中包含了完整的答案，直接引用资料回答。'
+            '如果资料中没有相关信息，请如实说「未在知识库中找到相关信息」，不要编造：\n\n'
+            f'{knowledge_context}'
+        )
+
+    messages = [{"role": "system", "content": system_prompt}]
 
     if not file_content:
         # 纯文本消息
@@ -257,12 +399,33 @@ def build_ollama_messages(
 @app.get("/api/health")
 async def health():
     """健康检查"""
+    if AI_BACKEND == "dashscope":
+        if not DASHSCOPE_API_KEY:
+            return {
+                "status": "error",
+                "backend": "dashscope",
+                "active_model": DASHSCOPE_MODEL,
+                "models": [],
+                "timestamp": datetime.now().isoformat(),
+                "message": "未配置 DashScope API Key，请在 .env 中设置 DASHSCOPE_API_KEY",
+            }
+        return {
+            "status": "ok",
+            "backend": "dashscope",
+            "active_model": DASHSCOPE_MODEL,
+            "models": [DASHSCOPE_MODEL],
+            "timestamp": datetime.now().isoformat(),
+            "message": f"DashScope 已连接 · 模型: {DASHSCOPE_MODEL}",
+        }
+
+    # Ollama 模式
     ollama_status = await check_ollama()
     models = ollama_status.get("models", [])
     active_model = pick_best_model(models)
 
     return {
         "status": "ok" if ollama_status["running"] else "error",
+        "backend": "ollama",
         "ollama_running": ollama_status["running"],
         "models": models,
         "active_model": active_model,
@@ -281,28 +444,37 @@ async def chat(
     if not message.strip() and not file:
         raise HTTPException(status_code=400, detail="请提供消息内容或上传文件")
 
-    # 检查 Ollama 状态
+    # 搜索知识库
+    knowledge = search_knowledge_base(message)
+    if knowledge:
+        logger.info(f"知识库命中，注入上下文")
+
+    # 根据不同后端处理
+    if AI_BACKEND == "dashscope":
+        return await _chat_dashscope(message, model, file, knowledge)
+    else:
+        return await _chat_ollama(message, model, file, knowledge)
+
+
+async def _chat_ollama(message: str, model: str, file, knowledge: str):
+    """Ollama 后端非流式聊天"""
     ollama_status = await check_ollama()
     if not ollama_status["running"]:
         raise HTTPException(status_code=503, detail="Ollama 未运行，请先启动 Ollama (ollama serve)")
 
-    # 选择模型
     models = ollama_status["models"]
     if not models:
         raise HTTPException(status_code=503, detail="Ollama 中没有可用的模型，请先下载 (ollama pull qwen2.5vl:7b)")
 
-    # 如果有图片文件，优先选择视觉模型
     prefer_vision = bool(file and file.content_type in ALLOWED_IMAGE_TYPES)
     active_model = model or pick_best_model(models, prefer_vision=prefer_vision)
-    logger.info(f"使用模型: {active_model}")
+    logger.info(f"[Ollama] 使用模型: {active_model}")
 
     try:
-        # 构建消息
         if file:
             file_content, content_type = await read_uploaded_file(file)
             file_category = get_file_category(file.filename or "", content_type)
 
-            # 图片但模型不支持视觉
             if file_category == "image" and not is_vision_model(active_model):
                 return {"response": (
                     f"当前模型 `{active_model}` 不支持图片分析。\n\n"
@@ -312,19 +484,19 @@ async def chat(
                 )}
 
             messages = build_ollama_messages(
-                message, file_content, file.filename or "file", file_category, content_type
+                message, file_content, file.filename or "file", file_category, content_type,
+                knowledge_context=knowledge if knowledge else None,
             )
         else:
-            messages = build_ollama_messages(message)
+            messages = build_ollama_messages(message, knowledge_context=knowledge if knowledge else None)
 
-        # 调用 Ollama
         resp = await ollama_request("POST", "/api/chat", {
             "model": active_model,
             "messages": messages,
             "stream": False,
+            "options": {"temperature": 0.3},
         })
         data = resp.json()
-
         return {"response": data["message"]["content"]}
 
     except httpx.HTTPStatusError as e:
@@ -333,6 +505,48 @@ async def chat(
     except Exception as e:
         logger.error(f"服务器错误: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"服务器错误: {str(e)}")
+
+
+async def _chat_dashscope(message: str, model: str, file, knowledge: str):
+    """DashScope 后端非流式聊天"""
+    active_model = model or DASHSCOPE_MODEL
+    logger.info(f"[DashScope] 使用模型: {active_model}")
+
+    try:
+        if file:
+            file_content, content_type = await read_uploaded_file(file)
+            file_category = get_file_category(file.filename or "", content_type)
+
+            if file_category == "image":
+                # DashScope qwen-vl 系列支持图片，可以通过 OpenAI 兼容格式传 base64
+                import base64
+                img_b64 = base64.b64encode(file_content).decode("utf-8")
+                text = message.strip() or "请分析这张图片的内容"
+                messages = [
+                    {"role": "system", "content": get_system_prompt()},
+                    {"role": "user", "content": [
+                        {"type": "image_url", "image_url": {"url": f"data:{content_type};base64,{img_b64}"}},
+                        {"type": "text", "text": text},
+                    ]},
+                ]
+                # 上传图片时自动切换到视觉模型
+                active_model = "qwen-vl-plus"
+            else:
+                messages = build_ollama_messages(
+                    message, file_content, file.filename or "file", file_category, content_type,
+                    knowledge_context=knowledge if knowledge else None,
+                )
+        else:
+            messages = build_ollama_messages(message, knowledge_context=knowledge if knowledge else None)
+
+        response_text = await dashscope_chat(messages, active_model)
+        return {"response": response_text}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"DashScope 错误: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"DashScope 请求失败: {str(e)}")
 
 
 @app.post("/api/chat/stream")
@@ -345,89 +559,25 @@ async def chat_stream(
     if not message.strip() and not file:
         raise HTTPException(status_code=400, detail="请提供消息内容或上传文件")
 
-    # 检查 Ollama
-    ollama_status = await check_ollama()
-    if not ollama_status["running"]:
-        async def error_gen():
-            yield f"data: {json.dumps({'type': 'error', 'content': 'Ollama 未运行，请先启动 Ollama'})}\n\n"
-        return StreamingResponse(error_gen(), media_type="text/event-stream")
-
-    models = ollama_status["models"]
-    if not models:
-        async def error_gen():
-            yield f"data: {json.dumps({'type': 'error', 'content': 'Ollama 中没有可用模型，请先下载模型 (如: ollama pull qwen2.5vl:7b)'})}\n\n"
-        return StreamingResponse(error_gen(), media_type="text/event-stream")
+    # 搜索知识库
+    knowledge = search_knowledge_base(message)
+    if knowledge:
+        logger.info(f"流式: 知识库命中，注入上下文")
 
     # 读取文件内容（只读一次）
-    file_data = None  # (bytes, content_type, category, filename)
+    file_data = None
     if file:
         raw_bytes, raw_type = await read_uploaded_file(file)
         file_cat = get_file_category(file.filename or "", raw_type)
         file_data = (raw_bytes, raw_type, file_cat, file.filename or "file")
 
-    active_model = model or pick_best_model(models, prefer_vision=(file_data and file_data[2] == "image"))
-    logger.info(f"流式使用模型: {active_model}")
-
-    async def generate():
-        try:
-            if file_data:
-                fb, ct, cat, fn = file_data
-
-                # 图片但模型不支持视觉 → 返回错误提示
-                if cat == "image" and not is_vision_model(active_model):
-                    error_msg = (
-                        f"当前模型 `{active_model}` 不支持图片分析。\n\n"
-                        f"请安装视觉模型后再试:\n"
-                        f"```bash\nollama pull qwen2.5-vl:7b\n```\n\n"
-                        f"或发送文字描述图片内容。"
-                    )
-                    yield f"data: {json.dumps({'type': 'error', 'content': error_msg})}\n\n"
-                    return
-
-                messages = build_ollama_messages(message, fb, fn, cat, ct)
-                yield f"data: {json.dumps({'type': 'file_info', 'name': fn, 'category': cat})}\n\n"
-            else:
-                messages = build_ollama_messages(message)
-
-            # 流式调用 Ollama
-            url = f"{OLLAMA_BASE_URL}/api/chat"
-            async with httpx.AsyncClient(timeout=300.0) as client:
-                async with client.stream(
-                    "POST", url,
-                    json={
-                        "model": active_model,
-                        "messages": messages,
-                        "stream": True,
-                    }
-                ) as response:
-                    response.raise_for_status()
-                    async for line in response.aiter_lines():
-                        if not line.strip():
-                            continue
-                        try:
-                            chunk = json.loads(line)
-                            if "message" in chunk and "content" in chunk["message"]:
-                                content = chunk["message"]["content"]
-                                if content:
-                                    yield f"data: {json.dumps({'type': 'text', 'content': content})}\n\n"
-                            if chunk.get("done"):
-                                break
-                        except json.JSONDecodeError:
-                            continue
-
-            yield f"data: {json.dumps({'type': 'done'})}\n\n"
-
-        except httpx.HTTPStatusError as e:
-            error_msg = f"Ollama 请求失败: {e.response.text[:200]}"
-            logger.error(error_msg)
-            yield f"data: {json.dumps({'type': 'error', 'content': error_msg})}\n\n"
-        except Exception as e:
-            error_msg = f"服务器错误: {str(e)}"
-            logger.error(error_msg, exc_info=True)
-            yield f"data: {json.dumps({'type': 'error', 'content': error_msg})}\n\n"
+    if AI_BACKEND == "dashscope":
+        generate_func = _stream_dashscope(message, model, file_data, knowledge)
+    else:
+        generate_func = _stream_ollama(message, model, file_data, knowledge)
 
     return StreamingResponse(
-        generate(),
+        generate_func,
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",
@@ -435,6 +585,116 @@ async def chat_stream(
             "X-Accel-Buffering": "no",
         },
     )
+
+
+async def _stream_ollama(message: str, model: str, file_data, knowledge: str):
+    """Ollama 后端流式聊天"""
+    # 检查 Ollama
+    ollama_status = await check_ollama()
+    if not ollama_status["running"]:
+        yield f"data: {json.dumps({'type': 'error', 'content': 'Ollama 未运行，请先启动 Ollama'})}\n\n"
+        return
+
+    models = ollama_status["models"]
+    if not models:
+        yield f"data: {json.dumps({'type': 'error', 'content': 'Ollama 中没有可用模型，请先下载模型 (如: ollama pull qwen2.5vl:7b)'})}\n\n"
+        return
+
+    active_model = model or pick_best_model(models, prefer_vision=(file_data and file_data[2] == "image"))
+    logger.info(f"[Ollama] 流式使用模型: {active_model}")
+
+    try:
+        if file_data:
+            fb, ct, cat, fn = file_data
+            if cat == "image" and not is_vision_model(active_model):
+                error_msg = (
+                    f"当前模型 `{active_model}` 不支持图片分析。\n\n"
+                    f"请安装视觉模型后再试:\n"
+                    f"```bash\nollama pull qwen2.5-vl:7b\n```\n\n"
+                    f"或发送文字描述图片内容。"
+                )
+                yield f"data: {json.dumps({'type': 'error', 'content': error_msg})}\n\n"
+                return
+
+            messages = build_ollama_messages(message, fb, fn, cat, ct,
+                knowledge_context=knowledge if knowledge else None)
+            yield f"data: {json.dumps({'type': 'file_info', 'name': fn, 'category': cat})}\n\n"
+        else:
+            messages = build_ollama_messages(message, knowledge_context=knowledge if knowledge else None)
+
+        url = f"{OLLAMA_BASE_URL}/api/chat"
+        async with httpx.AsyncClient(timeout=300.0) as client:
+            async with client.stream(
+                "POST", url,
+                json={
+                    "model": active_model,
+                    "messages": messages,
+                    "stream": True,
+                    "options": {"temperature": 0.3},
+                }
+            ) as response:
+                response.raise_for_status()
+                async for line in response.aiter_lines():
+                    if not line.strip():
+                        continue
+                    try:
+                        chunk = json.loads(line)
+                        if "message" in chunk and "content" in chunk["message"]:
+                            content = chunk["message"]["content"]
+                            if content:
+                                yield f"data: {json.dumps({'type': 'text', 'content': content})}\n\n"
+                        if chunk.get("done"):
+                            break
+                    except json.JSONDecodeError:
+                        continue
+
+        yield f"data: {json.dumps({'type': 'done'})}\n\n"
+
+    except httpx.HTTPStatusError as e:
+        error_msg = f"Ollama 请求失败: {e.response.text[:200]}"
+        logger.error(error_msg)
+        yield f"data: {json.dumps({'type': 'error', 'content': error_msg})}\n\n"
+    except Exception as e:
+        error_msg = f"服务器错误: {str(e)}"
+        logger.error(error_msg, exc_info=True)
+        yield f"data: {json.dumps({'type': 'error', 'content': error_msg})}\n\n"
+
+
+async def _stream_dashscope(message: str, model: str, file_data, knowledge: str):
+    """DashScope 后端流式聊天"""
+    active_model = model or DASHSCOPE_MODEL
+    logger.info(f"[DashScope] 流式使用模型: {active_model}")
+
+    try:
+        if file_data:
+            fb, ct, cat, fn = file_data
+            yield f"data: {json.dumps({'type': 'file_info', 'name': fn, 'category': cat})}\n\n"
+
+            if cat == "image":
+                import base64
+                img_b64 = base64.b64encode(fb).decode("utf-8")
+                text = message.strip() or "请分析这张图片的内容"
+                messages = [
+                    {"role": "system", "content": get_system_prompt()},
+                    {"role": "user", "content": [
+                        {"type": "image_url", "image_url": {"url": f"data:{ct};base64,{img_b64}"}},
+                        {"type": "text", "text": text},
+                    ]},
+                ]
+                active_model = "qwen-vl-plus"
+            else:
+                messages = build_ollama_messages(message, fb, fn, cat, ct,
+                    knowledge_context=knowledge if knowledge else None)
+        else:
+            messages = build_ollama_messages(message, knowledge_context=knowledge if knowledge else None)
+
+        async for event in dashscope_stream(messages, active_model):
+            yield event
+
+    except Exception as e:
+        error_msg = f"DashScope 流式错误: {str(e)}"
+        logger.error(error_msg, exc_info=True)
+        yield f"data: {json.dumps({'type': 'error', 'content': error_msg})}\n\n"
 
 
 @app.post("/api/upload")
@@ -512,8 +772,13 @@ if __name__ == "__main__":
     print(f"  Local:     http://localhost:{port}")
     for ip in lan_ips:
         print(f"  Network:   http://{ip}:{port}")
-    print(f"  Ollama:    {OLLAMA_BASE_URL}")
-    print(f"  Model:     {OLLAMA_MODEL or 'auto'}")
+    if AI_BACKEND == "dashscope":
+        print(f"  Backend:   DashScope (通义千问)")
+        print(f"  Model:     {DASHSCOPE_MODEL}")
+    else:
+        print(f"  Backend:   Ollama (本地)")
+        print(f"  Ollama:    {OLLAMA_BASE_URL}")
+        print(f"  Model:     {OLLAMA_MODEL or 'auto'}")
     print("=" * 54)
     print("  Ctrl+C to stop the server")
     print("=" * 54)

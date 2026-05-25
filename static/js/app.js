@@ -622,19 +622,31 @@ async function checkHealth() {
     try {
         const res = await fetch('/api/health');
         const data = await res.json();
-        state.ollamaRunning = data.ollama_running;
         state.availableModels = data.models || [];
 
-        if (!data.ollama_running) {
-            elements.statusDot.className = 'status-dot disconnected';
-            elements.statusText.textContent = 'Ollama 未运行';
-        } else if (data.models.length === 0) {
-            elements.statusDot.className = 'status-dot disconnected';
-            elements.statusText.textContent = '未下载模型';
+        if (data.backend === 'dashscope') {
+            // DashScope 云端模式
+            if (data.status === 'ok') {
+                elements.statusDot.className = 'status-dot connected';
+                elements.statusText.textContent = `通义千问 · ${data.active_model}`;
+            } else {
+                elements.statusDot.className = 'status-dot disconnected';
+                elements.statusText.textContent = 'API Key 未配置';
+            }
         } else {
-            elements.statusDot.className = 'status-dot connected';
-            const active = data.active_model || data.models[0];
-            elements.statusText.textContent = `本地模型 · ${active}`;
+            // Ollama 本地模式
+            state.ollamaRunning = data.ollama_running;
+            if (!data.ollama_running) {
+                elements.statusDot.className = 'status-dot disconnected';
+                elements.statusText.textContent = 'Ollama 未运行';
+            } else if (data.models.length === 0) {
+                elements.statusDot.className = 'status-dot disconnected';
+                elements.statusText.textContent = '未下载模型';
+            } else {
+                elements.statusDot.className = 'status-dot connected';
+                const active = data.active_model || data.models[0];
+                elements.statusText.textContent = `本地模型 · ${active}`;
+            }
         }
 
         // 加载模型列表到选择器
