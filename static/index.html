@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat - 智能助手</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- 侧边栏 -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>AI Chat</h2>
+            <button class="btn-icon" onclick="toggleSidebar()" title="关闭侧边栏">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <button class="new-chat-btn" onclick="newChat()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            新对话
+        </button>
+        <div class="conversation-list" id="conversationList">
+            <!-- 对话列表由 JS 动态生成 -->
+        </div>
+        <div class="sidebar-footer">
+            <div class="status-indicator" id="statusIndicator">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">检查连接...</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 主区域 -->
+    <main class="main-content" id="mainContent">
+        <!-- 顶部栏 -->
+        <header class="top-bar">
+            <button class="btn-icon" onclick="toggleSidebar()" title="打开侧边栏">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+            </button>
+            <div class="model-selector">
+                <select id="modelSelect" onchange="changeModel()">
+                    <option value="">自动选择</option>
+                </select>
+            </div>
+            <button class="btn-icon" onclick="clearChat()" title="清空对话">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+            </button>
+        </header>
+
+        <!-- 聊天区域 -->
+        <div class="chat-container" id="chatContainer">
+            <!-- 欢迎页面 -->
+            <div class="welcome" id="welcomeScreen">
+                <div class="welcome-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                </div>
+                <h1>有什么我可以帮助你的？</h1>
+                <p class="welcome-subtitle">上传图片分析内容 · 上传代码分析解读 · 对话提问获得答案</p>
+                <div class="welcome-tips">
+                    <div class="tip-card">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                        <span>上传图片进行分析</span>
+                    </div>
+                    <div class="tip-card">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>
+                        <span>上传代码文件解读</span>
+                    </div>
+                    <div class="tip-card">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                        <span>编程问题与Debug</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 消息列表 -->
+            <div class="messages" id="messages"></div>
+        </div>
+
+        <!-- 输入区域 -->
+        <div class="input-area">
+            <div class="file-preview" id="filePreview" style="display:none;">
+                <div class="file-preview-content">
+                    <span class="file-icon" id="fileIcon">📄</span>
+                    <span class="file-name" id="fileName"></span>
+                    <span class="file-size" id="fileSize"></span>
+                </div>
+                <button class="file-remove" onclick="removeFile()">&times;</button>
+            </div>
+            <div class="input-wrapper">
+                <button class="btn-icon btn-upload" onclick="document.getElementById('fileInput').click()" title="上传文件">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                </button>
+                <input type="file" id="fileInput" accept="image/*,.py,.js,.ts,.jsx,.tsx,.html,.css,.java,.cpp,.c,.go,.rs,.rb,.php,.swift,.kt,.sql,.md,.json,.xml,.yaml,.yml,.sh,.bash,.txt,.csv,.vue,.svelte,.dart,.lua,.r,.pl" style="display:none" onchange="handleFileSelect(event)">
+                <div class="input-editor">
+                    <textarea
+                        id="messageInput"
+                        rows="1"
+                        placeholder="输入消息，Enter 发送，Shift+Enter 换行..."
+                        autofocus
+                    ></textarea>
+                </div>
+                <button class="btn-send" id="sendBtn" onclick="sendMessage()" disabled>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M2 21L23 12 2 3v7l15 2-15 2v7z"/></svg>
+                </button>
+            </div>
+            <p class="input-hint">AI 回复仅供参考，请验证重要信息</p>
+        </div>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.11/purify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
