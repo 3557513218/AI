@@ -183,6 +183,9 @@ function addMessage(role, content, extra = {}) {
     const msgDiv = document.createElement('div');
     msgDiv.className = `message ${role}`;
     msgDiv.dataset.messageId = extra.id || Date.now().toString();
+    if (extra.messageIdx !== undefined) {
+        msgDiv.dataset.messageIdx = extra.messageIdx;
+    }
 
     const avatar = role === 'user' ? '👤' : '🤖';
     const roleName = role === 'user' ? '你' : 'AI';
@@ -200,6 +203,7 @@ function addMessage(role, content, extra = {}) {
     }
 
     const time = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+    const editBtn = role === 'user' ? '<button class="btn-edit-msg" onclick="editMessage(this)" title="编辑">✏️</button>' : '';
 
     msgDiv.innerHTML = `
         <div class="message-avatar">${avatar}</div>
@@ -207,6 +211,7 @@ function addMessage(role, content, extra = {}) {
             <div class="message-header">
                 <span class="message-role">${roleName}</span>
                 <span class="message-time">${time}</span>
+                ${editBtn}
             </div>
             <div class="message-bubble">
                 ${extraHtml}
@@ -276,15 +281,12 @@ function getCurrentConversation() {
 function getConversationTitle(messages) {
     if (messages.length === 0) return '新对话';
     const first = messages[0];
-    // 提取文本内容作为标题
     let text = '';
-    if (typeof first.content === 'string') {
+    if (first.text) {
+        text = first.text;
+    } else if (typeof first.content === 'string') {
         text = first.content;
-    } else if (Array.isArray(first.content)) {
-        const textPart = first.content.find(c => c.type === 'text');
-        text = textPart?.text || '';
     }
-    // 如果包含文件
     if (first.fileName) {
         return `[${first.fileName}] ${text.slice(0, 20)}`;
     }
@@ -321,9 +323,31 @@ function renderConversationList() {
         const active = c.id === state.currentId ? 'active' : '';
         return `<div class="conversation-item ${active}" onclick="switchConversation('${c.id}')">
             <span class="icon">💬</span>
-            <span>${escapeHtml(title)}</span>
+            <span class="conv-title">${escapeHtml(title)}</span>
+            <button class="btn-delete-conv" onclick="deleteConversation('${c.id}', event)" title="删除对话">×</button>
         </div>`;
     }).join('') || '<div style="padding:20px;text-align:center;color:var(--text-sidebar-muted);font-size:13px;">暂无对话记录</div>';
+}
+
+function deleteConversation(id, event) {
+    event.stopPropagation();
+    if (!confirm('确定删除这个对话？')) return;
+
+    const idx = state.conversations.findIndex(c => c.id === id);
+    if (idx === -1) return;
+
+    state.conversations.splice(idx, 1);
+
+    if (state.currentId === id) {
+        if (state.conversations.length > 0) {
+            const nextIdx = Math.min(idx, state.conversations.length - 1);
+            switchConversation(state.conversations[nextIdx].id);
+        } else {
+            newChat();
+        }
+    } else {
+        renderConversationList();
+    }
 }
 
 function renderMessages() {
@@ -331,7 +355,8 @@ function renderMessages() {
     elements.messages.innerHTML = '';
     if (!conv) return;
 
-    for (const msg of conv.messages) {
+    for (let i = 0; i < conv.messages.length; i++) {
+        const msg = conv.messages[i];
         const extra = {};
         if (msg.fileName && msg.fileCategory === 'image' && msg.filePreview) {
             extra.imagePreview = msg.filePreview;
@@ -341,6 +366,7 @@ function renderMessages() {
             extra.fileIcon = msg.fileIcon || '📄';
             extra.fileSize = msg.fileSize || '';
         }
+        extra.messageIdx = i;
         addMessage(msg.role, msg.text || '', extra);
     }
 }
@@ -452,6 +478,7 @@ async function sendMessage() {
     // 添加用户消息到界面，切换到聊天视图
     addMessage('user', userText || (file ? `[上传文件] ${file.name}` : ''), userExtra);
     updateWelcomeVisibility();
+    renderConversationList();  // 立即更新对话标题
 
     // 添加 AI 消息占位
     addMessage('ai', '');
@@ -465,73 +492,11 @@ async function sendMessage() {
     scrollToBottom();
 
     try {
-        const formData = new FormData();
-        formData.append('message', text);
-        if (file) {
-            formData.append('file', file);
-        }
-        formData.append('model', state.currentModel);
-
-        const response = await fetch('/api/chat/stream', {
-            method: 'POST',
-            body: formData,
-            signal: state.abortController.signal,
-        });
-
-        if (!response.ok) {
-            const err = await response.json().catch(() => ({ detail: '请求失败' }));
-            throw new Error(err.detail || `HTTP ${response.status}`);
-        }
-
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
-        let fullResponse = '';
-
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split('\n');
-            buffer = lines.pop() || '';
-
-            for (const line of lines) {
-                if (!line.startsWith('data: ')) continue;
-                try {
-                    const data = JSON.parse(line.slice(6));
-                    switch (data.type) {
-                        case 'text':
-                            fullResponse += data.content;
-                            updateAiMessage(fullResponse, true);
-                            break;
-                        case 'error':
-                            throw new Error(data.content);
-                        case 'done':
-                            break;
-                    }
-                } catch (e) {
-                    if (e.message !== 'The operation was aborted') throw e;
-                }
-            }
-        }
-
-        // 处理剩余 buffer
-        if (buffer.startsWith('data: ')) {
-            try {
-                const data = JSON.parse(buffer.slice(6));
-                if (data.type === 'text') {
-                    fullResponse += data.content;
-                    updateAiMessage(fullResponse, true);
-                }
-            } catch (e) { /* ignore parse errors on incomplete chunks */ }
-        }
-
+        const fullResponse = await streamChat(text, file);
         conv.messages.push({
             role: 'assistant',
             text: fullResponse,
         });
-
     } catch (err) {
         if (err.name === 'AbortError') {
             // 用户主动取消，保留已生成的内容
@@ -562,6 +527,12 @@ async function sendMessage() {
     }
 }
 
+function updateSendButton() {
+    const text = elements.messageInput.value.trim();
+    const hasFile = !!state.uploadedFile;
+    elements.sendBtn.disabled = (!text && !hasFile) || state.isStreaming;
+}
+
 function updateSendButtonUI(isStreaming) {
     if (isStreaming) {
         elements.sendBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>`;
@@ -584,7 +555,168 @@ function stopGeneration() {
     elements.sendBtn.title = '正在停止...';
 }
 
-function updateSendButton() {
+// ============ 流式请求 ============
+async function streamChat(text, file) {
+    const formData = new FormData();
+    formData.append('message', text);
+    if (file) formData.append('file', file);
+    formData.append('model', state.currentModel);
+
+    const response = await fetch('/api/chat/stream', {
+        method: 'POST',
+        body: formData,
+        signal: state.abortController.signal,
+    });
+
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({ detail: '请求失败' }));
+        throw new Error(err.detail || `HTTP ${response.status}`);
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let fullResponse = '';
+
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            try {
+                const data = JSON.parse(line.slice(6));
+                switch (data.type) {
+                    case 'text':
+                        fullResponse += data.content;
+                        updateAiMessage(fullResponse, true);
+                        break;
+                    case 'error':
+                        throw new Error(data.content);
+                    case 'done':
+                        break;
+                }
+            } catch (e) {
+                if (e.message !== 'The operation was aborted') throw e;
+            }
+        }
+    }
+
+    if (buffer.startsWith('data: ')) {
+        try {
+            const data = JSON.parse(buffer.slice(6));
+            if (data.type === 'text') {
+                fullResponse += data.content;
+                updateAiMessage(fullResponse, true);
+            }
+        } catch (e) { /* ignore parse errors */ }
+    }
+
+    return fullResponse;
+}
+
+// ============ 编辑消息 ============
+function editMessage(btn) {
+    const msgDiv = btn.closest('.message');
+    const idx = parseInt(msgDiv.dataset.messageIdx);
+    const conv = getCurrentConversation();
+    if (!conv || isNaN(idx) || idx >= conv.messages.length) return;
+
+    const bubble = msgDiv.querySelector('.message-bubble');
+    const originalText = conv.messages[idx].text || '';
+
+    // 防止重复编辑
+    if (bubble.querySelector('.edit-textarea')) return;
+
+    const html = bubble.innerHTML;
+    bubble.innerHTML = `
+        <textarea class="edit-textarea">${escapeHtml(originalText)}</textarea>
+        <div class="edit-actions">
+            <button class="btn-save-edit">保存</button>
+            <button class="btn-cancel-edit">取消</button>
+        </div>
+    `;
+
+    const textarea = bubble.querySelector('.edit-textarea');
+    textarea.focus();
+    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+
+    // 绑定事件
+    bubble.querySelector('.btn-save-edit').onclick = () => saveEdit(conv, idx);
+    bubble.querySelector('.btn-cancel-edit').onclick = () => { bubble.innerHTML = html; };
+    textarea.onkeydown = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            saveEdit(conv, idx);
+        }
+    };
+}
+
+async function saveEdit(conv, idx) {
+    const msgDiv = document.querySelector(`.message[data-message-idx="${idx}"]`);
+    if (!msgDiv) return;
+
+    const textarea = msgDiv.querySelector('.edit-textarea');
+    const newText = textarea.value.trim();
+    if (!newText) return;
+
+    // 更新消息内容
+    conv.messages[idx].text = newText;
+
+    // 删除该消息之后的所有消息
+    conv.messages = conv.messages.slice(0, idx + 1);
+
+    // 切换到该对话
+    state.currentId = conv.id;
+    renderMessages();
+    updateWelcomeVisibility();
+    renderConversationList();
+
+    // 添加 AI 占位
+    addMessage('ai', '');
+
+    // 流式请求
+    state.isStreaming = true;
+    state.abortController = new AbortController();
+    elements.sendBtn.disabled = false;
+    elements.messageInput.disabled = true;
+    updateSendButtonUI(true);
+    scrollToBottom();
+
+    try {
+        const fullResponse = await streamChat(newText, null);
+        conv.messages.push({ role: 'assistant', text: fullResponse });
+    } catch (err) {
+        if (err.name === 'AbortError') {
+            const bubble = getLastAiBubble();
+            if (bubble && bubble.querySelector('.typing-indicator')) {
+                bubble.innerHTML = '<div style="color:var(--text-secondary);padding:8px;font-size:13px;">已取消生成</div>';
+            }
+        } else {
+            console.error('编辑请求失败:', err);
+            const errorBubble = getLastAiBubble();
+            if (errorBubble) {
+                errorBubble.innerHTML = `<div style="color:#E74C3C;padding:8px;">
+                    <strong>出错了</strong><br>
+                    <span style="font-size:14px;">${escapeHtml(err.message)}</span>
+                </div>`;
+            }
+        }
+    } finally {
+        state.isStreaming = false;
+        state.abortController = null;
+        elements.messageInput.disabled = false;
+        updateSendButtonUI(false);
+        updateSendButton();
+        elements.messageInput.focus();
+        updateWelcomeVisibility();
+        renderConversationList();
+    }
+}
     const text = elements.messageInput.value.trim();
     const hasFile = !!state.uploadedFile;
     elements.sendBtn.disabled = (!text && !hasFile) || state.isStreaming;

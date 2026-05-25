@@ -107,7 +107,7 @@ body {
 .conversation-item {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 6px;
     padding: 10px 12px;
     margin-bottom: 4px;
     border-radius: var(--radius-sm);
@@ -115,12 +115,36 @@ body {
     cursor: pointer;
     font-size: 13px;
     transition: background var(--transition);
+}
+.conversation-item:hover { background: rgba(255,255,255,0.08); }
+.conversation-item.active { background: rgba(108,92,231,0.25); color: #FFF; }
+
+.conversation-item .conv-title {
+    flex: 1;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
-.conversation-item:hover { background: rgba(255,255,255,0.08); }
-.conversation-item.active { background: rgba(108,92,231,0.25); color: #FFF; }
+
+.btn-delete-conv {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-sidebar-muted);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: all var(--transition);
+}
+.conversation-item:hover .btn-delete-conv { display: flex; }
+.btn-delete-conv:hover { background: rgba(231,76,60,0.3); color: #E74C3C; }
 
 .conversation-item .icon {
     width: 28px;
@@ -355,6 +379,21 @@ body {
     color: var(--text-secondary);
 }
 
+.btn-edit-msg {
+    margin-left: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-size: 13px;
+    opacity: 0;
+    transition: opacity var(--transition), background var(--transition);
+    line-height: 1;
+}
+.message:hover .btn-edit-msg { opacity: 0.6; }
+.btn-edit-msg:hover { opacity: 1 !important; background: var(--border); }
+
 .message-bubble {
     padding: 12px 16px;
     border-radius: var(--radius-lg);
@@ -498,6 +537,50 @@ body {
     0%, 60%, 100% { opacity: 0.3; transform: scale(0.8); }
     30% { opacity: 1; transform: scale(1.2); }
 }
+
+/* ============ 编辑消息 ============ */
+.edit-textarea {
+    width: 100%;
+    border: 1px solid var(--primary);
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    line-height: 1.5;
+    resize: vertical;
+    outline: none;
+    background: var(--bg-card);
+    color: var(--text);
+    box-sizing: border-box;
+}
+
+.edit-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.btn-save-edit, .btn-cancel-edit {
+    padding: 5px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all var(--transition);
+    border: none;
+}
+
+.btn-save-edit {
+    background: var(--primary);
+    color: #FFF;
+}
+.btn-save-edit:hover { background: var(--primary-hover); }
+
+.btn-cancel-edit {
+    background: #F1F3F5;
+    color: #333;
+    border: 1px solid #DEE2E6;
+}
+.btn-cancel-edit:hover { background: #E9ECEF; }
 
 /* ============ 输入区域 ============ */
 .input-area {
