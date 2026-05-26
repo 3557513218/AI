@@ -304,7 +304,9 @@ def search_knowledge_base(query: str) -> str:
 def get_system_prompt() -> str:
     from datetime import date
     today = date.today()
-    return f"""你是智能 AI 助手，今天是 {today.year} 年 {today.month} 月 {today.day} 日。请遵循以下原则：
+    weekdays = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"]
+    weekday = weekdays[today.weekday()]
+    return f"""你是智能 AI 助手，今天是 {today.year} 年 {today.month} 月 {today.day} 日 {weekday}。请遵循以下原则：
 
 1. **开发任务积极协助**：当用户请你写代码、开发项目、制作软件时，要尽力提供帮助。生成完整的代码、给出步骤指导、设计架构，而不是简单说做不到
 2. **事实核查要诚实**：当被问到关于特定人物、事件、日期等具体事实时，如果你不确定，必须坦诚说明"我无法确认"，不要编造不存在的信息

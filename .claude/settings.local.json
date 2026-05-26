@@ -67,7 +67,8 @@
       "Bash(/tmp/OllamaSetup.exe /S)",
       "Bash(tasklist //FI \"IMAGENAME eq python.exe\")",
       "Bash(kill 19032)",
-      "Bash(taskkill //F //PID 19032)"
+      "Bash(taskkill //F //PID 19032)",
+      "Bash(node *)"
     ]
   }
 }

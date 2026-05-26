@@ -717,10 +717,6 @@ async function saveEdit(conv, idx) {
         renderConversationList();
     }
 }
-    const text = elements.messageInput.value.trim();
-    const hasFile = !!state.uploadedFile;
-    elements.sendBtn.disabled = (!text && !hasFile) || state.isStreaming;
-}
 
 // ============ 键盘事件 ============
 elements.messageInput.addEventListener('input', () => {
