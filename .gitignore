@@ -1,5 +1,6 @@
 # Environment
 .env
+config/custom_backends.json
 
 # Uploads
 /uploads/*

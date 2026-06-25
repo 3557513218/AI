@@ -1,0 +1,583 @@
+D:\AI\server.py:64: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+INFO:     Started server process [32260]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:9178 (Press CTRL+C to quit)
+
+======================================================
+  Local AI Chat is Running
+======================================================
+  Local:     http://localhost:9178
+  Network:   http://192.168.61.1:9178
+  Network:   http://192.168.132.1:9178
+  Network:   http://172.26.112.1:9178
+  Network:   http://192.168.101.68:9178
+  Backend:   Ollama (本地)
+  Ollama:    http://localhost:11434
+  Model:     qwen2.5vl:7b
+======================================================
+  Ctrl+C to stop the server
+======================================================
+
+INFO:     127.0.0.1:61015 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61082 - "POST /api/chat/stream HTTP/1.1" 200 OK
+2026-06-24 19:23:14,996 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-24 19:23:14,997 [INFO] 可用模型: ['qwen2.5vl:7b']
+2026-06-24 19:23:14,997 [INFO] [Ollama] 流式使用模型: qwen2.5vl:7b
+2026-06-24 19:23:28,916 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 500 Internal Server Error"
+2026-06-24 19:23:28,916 [ERROR] Ollama 返回错误 (500): {"error":"an error was encountered while running the model: CUDA error\nCUDA error: device kernel image is invalid"}
+INFO:     127.0.0.1:49811 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49811 - "GET /lib/atom-one-dark.min.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:62158 - "GET /css/style.css?v=20260624 HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49811 - "GET /lib/marked.min.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:62158 - "GET /lib/purify.min.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49811 - "GET /lib/highlight.min.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:62158 - "GET /js/app.js?v=20260624 HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49811 - "GET /api/settings/backends HTTP/1.1" 200 OK
+2026-06-25 12:12:08,644 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 12:12:08,646 [INFO] 可用模型: ['qwen2.5vl:7b']
+INFO:     127.0.0.1:62158 - "GET /api/health HTTP/1.1" 200 OK
+2026-06-25 12:12:09,162 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 12:12:09,164 [INFO] 可用模型: ['qwen2.5vl:7b']
+INFO:     127.0.0.1:62158 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53244 - "POST /api/chat/stream HTTP/1.1" 200 OK
+2026-06-25 12:12:20,768 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 12:12:20,770 [INFO] [Ollama] 流式使用模型: qwen2.5vl:7b
+2026-06-25 12:12:40,916 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 500 Internal Server Error"
+2026-06-25 12:12:40,916 [ERROR] Ollama 返回错误 (500): {"error":"an error was encountered while running the model: CUDA error: device kernel image is invalid"}
+INFO:     127.0.0.1:51536 - "GET /api/settings/backends HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51536 - "GET /api/settings/backends HTTP/1.1" 200 OK
+D:\AI\server.py:64: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+INFO:     Started server process [33684]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:9178 (Press CTRL+C to quit)
+
+======================================================
+  Local AI Chat is Running
+======================================================
+  Local:     http://localhost:9178
+  Network:   http://192.168.61.1:9178
+  Network:   http://192.168.132.1:9178
+  Network:   http://172.26.112.1:9178
+  Network:   http://192.168.101.68:9178
+  Backend:   Ollama (本地)
+  Ollama:    http://localhost:11434
+  Model:     qwen2.5:3b
+======================================================
+  Ctrl+C to stop the server
+======================================================
+
+INFO:     127.0.0.1:63024 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63092 - "POST /api/chat/stream HTTP/1.1" 200 OK
+2026-06-25 12:16:34,435 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 12:16:34,435 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+2026-06-25 12:16:34,435 [INFO] [Ollama] 流式使用模型: qwen2.5:3b
+2026-06-25 12:16:47,029 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 500 Internal Server Error"
+2026-06-25 12:16:47,029 [ERROR] Ollama 返回错误 (500): {"error":"llama-server process has terminated: exit status 0xc0000409: The system detected an overrun of a stack-based buffer in this application. This overrun could potentially allow a malicious user to gain control of this application.: CUDA error: device kernel image is invalid"}
+D:\AI\server.py:64: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+INFO:     Started server process [29552]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:9178 (Press CTRL+C to quit)
+
+======================================================
+  Local AI Chat is Running
+======================================================
+  Local:     http://localhost:9178
+  Network:   http://192.168.61.1:9178
+  Network:   http://192.168.132.1:9178
+  Network:   http://172.26.112.1:9178
+  Network:   http://192.168.101.68:9178
+  Backend:   Ollama (本地)
+  Ollama:    http://localhost:11434
+  Model:     qwen2.5:3b
+======================================================
+  Ctrl+C to stop the server
+======================================================
+
+INFO:     127.0.0.1:62339 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62408 - "POST /api/chat/stream HTTP/1.1" 200 OK
+2026-06-25 14:11:10,752 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:11:10,754 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+2026-06-25 14:11:10,755 [INFO] [Ollama] 流式使用模型: qwen2.5:3b
+2026-06-25 14:11:14,736 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:50424 - "POST /api/chat/stream HTTP/1.1" 200 OK
+2026-06-25 14:11:21,766 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:11:21,766 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+2026-06-25 14:11:21,766 [INFO] [Ollama] 流式使用模型: qwen2.5:3b
+2026-06-25 14:11:22,842 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:51068 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:51068 - "GET /lib/atom-one-dark.min.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55314 - "GET /css/style.css?v=20260624 HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:51068 - "GET /lib/marked.min.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55314 - "GET /lib/purify.min.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55314 - "GET /js/app.js?v=20260624 HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:51068 - "GET /lib/highlight.min.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55314 - "GET /api/settings/backends HTTP/1.1" 200 OK
+2026-06-25 14:13:33,848 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:13:33,849 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:51068 - "GET /api/health HTTP/1.1" 200 OK
+2026-06-25 14:13:34,308 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:13:34,309 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:51068 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55010 - "POST /api/chat/stream HTTP/1.1" 200 OK
+2026-06-25 14:13:47,172 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:13:47,174 [INFO] [Ollama] 流式使用模型: qwen2.5:3b
+2026-06-25 14:13:48,799 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+2026-06-25 14:14:06,711 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:14:06,712 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+2026-06-25 14:15:04,171 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:54258 - "POST /api/workspace/edit HTTP/1.1" 200 OK
+D:\AI\server.py:64: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+INFO:     Started server process [28796]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:9178 (Press CTRL+C to quit)
+
+======================================================
+  Local AI Chat is Running
+======================================================
+  Local:     http://localhost:9178
+  Network:   http://192.168.61.1:9178
+  Network:   http://192.168.132.1:9178
+  Network:   http://172.26.112.1:9178
+  Network:   http://192.168.101.68:9178
+  Backend:   Ollama (本地)
+  Ollama:    http://localhost:11434
+  Model:     qwen2.5:3b
+======================================================
+  Ctrl+C to stop the server
+======================================================
+
+INFO:     127.0.0.1:53930 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57859 - "GET /api/settings/backends HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57859 - "GET /api/settings/backends HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57859 - "GET /api/settings/backends HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61294 - "GET /api/settings/backends HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64687 - "POST /api/workspace/edit HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:64739 - "POST /api/workspace/edit HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:50862 - "POST /api/settings/activate-backend HTTP/1.1" 200 OK
+2026-06-25 14:18:44,983 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:18:44,983 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:50862 - "GET /api/health HTTP/1.1" 200 OK
+2026-06-25 14:18:45,452 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:18:45,452 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:50862 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50862 - "POST /api/settings/activate-backend HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50862 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50862 - "GET /api/health HTTP/1.1" 200 OK
+2026-06-25 14:18:49,125 [INFO] HTTP Request: POST https://api.deepseek.com/chat/completions "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:60706 - "POST /api/workspace/edit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60788 - "POST /api/workspace/edit HTTP/1.1" 400 Bad Request
+2026-06-25 14:20:51,975 [INFO] HTTP Request: POST https://api.deepseek.com/chat/completions "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:61643 - "POST /api/workspace/edit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63945 - "GET /api/settings/backends HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63945 - "GET /api/settings/backends HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63945 - "POST /api/settings/activate-backend HTTP/1.1" 200 OK
+2026-06-25 14:21:12,284 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:21:12,285 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:63945 - "GET /api/health HTTP/1.1" 200 OK
+2026-06-25 14:21:12,729 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:21:12,731 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:63945 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63945 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:62039 - "GET /api/settings/backends HTTP/1.1" 200 OK
+2026-06-25 14:21:16,392 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:21:16,394 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:63945 - "GET /api/health HTTP/1.1" 200 OK
+2026-06-25 14:21:16,876 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:21:16,876 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:63945 - "GET /api/health HTTP/1.1" 200 OK
+2026-06-25 14:21:23,390 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:21:23,391 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+2026-06-25 14:21:39,045 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:62592 - "POST /api/workspace/edit HTTP/1.1" 200 OK
+2026-06-25 14:21:56,909 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:21:56,910 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+2026-06-25 14:22:19,445 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:64894 - "POST /api/workspace/edit HTTP/1.1" 200 OK
+2026-06-25 14:23:54,365 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:23:54,366 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+2026-06-25 14:24:14,047 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:54159 - "POST /api/workspace/edit HTTP/1.1" 200 OK
+D:\AI\server.py:64: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+INFO:     Started server process [32024]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:9178 (Press CTRL+C to quit)
+
+======================================================
+  Local AI Chat is Running
+======================================================
+  Local:     http://localhost:9178
+  Network:   http://192.168.61.1:9178
+  Network:   http://192.168.132.1:9178
+  Network:   http://172.26.112.1:9178
+  Network:   http://192.168.101.68:9178
+  Backend:   Ollama (本地)
+  Ollama:    http://localhost:11434
+  Model:     qwen2.5:3b
+======================================================
+  Ctrl+C to stop the server
+======================================================
+
+INFO:     127.0.0.1:56906 - "GET / HTTP/1.1" 200 OK
+2026-06-25 14:24:52,009 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:24:52,066 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:62579 - "POST /api/workspace/edit/stream HTTP/1.1" 400 Bad Request
+2026-06-25 14:25:20,588 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:50524 - "POST /api/workspace/edit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60057 - "POST /api/workspace/edit/stream HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:60114 - "POST /api/workspace/edit/stream HTTP/1.1" 400 Bad Request
+D:\AI\server.py:64: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+INFO:     Started server process [31068]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:9178 (Press CTRL+C to quit)
+
+======================================================
+  Local AI Chat is Running
+======================================================
+  Local:     http://localhost:9178
+  Network:   http://192.168.61.1:9178
+  Network:   http://192.168.132.1:9178
+  Network:   http://172.26.112.1:9178
+  Network:   http://192.168.101.68:9178
+  Backend:   Ollama (本地)
+  Ollama:    http://localhost:11434
+  Model:     qwen2.5:3b
+======================================================
+  Ctrl+C to stop the server
+======================================================
+
+INFO:     127.0.0.1:59545 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59605 - "POST /api/workspace/edit/stream HTTP/1.1" 200 OK
+2026-06-25 14:26:52,186 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:26:52,187 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+2026-06-25 14:26:54,503 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:65150 - "POST /api/chat/stream HTTP/1.1" 200 OK
+2026-06-25 14:27:32,851 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:27:32,851 [INFO] [Ollama] 流式使用模型: qwen2.5:3b
+2026-06-25 14:27:35,982 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:54607 - "POST /api/chat/stream HTTP/1.1" 200 OK
+2026-06-25 14:28:00,539 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:28:00,539 [INFO] [Ollama] 流式使用模型: qwen2.5:3b
+D:\AI\server.py:64: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+INFO:     Started server process [13672]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:9178 (Press CTRL+C to quit)
+
+======================================================
+  Local AI Chat is Running
+======================================================
+  Local:     http://localhost:9178
+  Network:   http://192.168.61.1:9178
+  Network:   http://192.168.132.1:9178
+  Network:   http://172.26.112.1:9178
+  Network:   http://192.168.101.68:9178
+  Backend:   Ollama (本地)
+  Ollama:    http://localhost:11434
+  Model:     qwen2.5:3b
+======================================================
+  Ctrl+C to stop the server
+======================================================
+
+INFO:     127.0.0.1:52730 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52795 - "POST /api/workspace/edit/stream HTTP/1.1" 200 OK
+2026-06-25 14:28:52,838 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:28:52,838 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:54825 - "POST /api/chat/stream HTTP/1.1" 200 OK
+2026-06-25 14:28:56,036 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+2026-06-25 14:28:56,134 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:28:56,134 [INFO] [Ollama] 流式使用模型: qwen2.5:3b
+INFO:     127.0.0.1:59320 - "POST /api/workspace/edit/stream HTTP/1.1" 200 OK
+2026-06-25 14:29:15,695 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:29:15,695 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+2026-06-25 14:29:39,210 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+2026-06-25 14:30:26,902 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+D:\AI\server.py:64: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+INFO:     Started server process [29316]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:9178 (Press CTRL+C to quit)
+
+======================================================
+  Local AI Chat is Running
+======================================================
+  Local:     http://localhost:9178
+  Network:   http://192.168.61.1:9178
+  Network:   http://192.168.132.1:9178
+  Network:   http://172.26.112.1:9178
+  Network:   http://192.168.101.68:9178
+  Backend:   Ollama (本地)
+  Ollama:    http://localhost:11434
+  Model:     qwen2.5:3b
+======================================================
+  Ctrl+C to stop the server
+======================================================
+
+INFO:     127.0.0.1:50935 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51014 - "POST /api/workspace/edit/stream HTTP/1.1" 200 OK
+2026-06-25 14:30:59,481 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:30:59,483 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+2026-06-25 14:31:02,636 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+D:\AI\server.py:64: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+INFO:     Started server process [20132]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:9178 (Press CTRL+C to quit)
+
+======================================================
+  Local AI Chat is Running
+======================================================
+  Local:     http://localhost:9178
+  Network:   http://192.168.61.1:9178
+  Network:   http://192.168.132.1:9178
+  Network:   http://172.26.112.1:9178
+  Network:   http://192.168.101.68:9178
+  Backend:   Ollama (本地)
+  Ollama:    http://localhost:11434
+  Model:     qwen2.5:3b
+======================================================
+  Ctrl+C to stop the server
+======================================================
+
+INFO:     127.0.0.1:64871 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64886 - "POST /api/workspace/edit/stream HTTP/1.1" 200 OK
+2026-06-25 14:32:52,544 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:32:52,545 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+2026-06-25 14:32:54,716 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:64988 - "POST /api/workspace/edit/stream HTTP/1.1" 200 OK
+2026-06-25 14:32:58,744 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:32:58,745 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+2026-06-25 14:33:00,804 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:59554 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:50505 - "GET /api/settings/backends HTTP/1.1" 200 OK
+2026-06-25 14:34:56,153 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:34:56,153 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:59554 - "GET /api/health HTTP/1.1" 200 OK
+2026-06-25 14:34:56,610 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:34:56,612 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:59554 - "GET /api/health HTTP/1.1" 200 OK
+2026-06-25 14:35:09,859 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:35:09,859 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+2026-06-25 14:35:30,585 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:64024 - "POST /api/workspace/edit HTTP/1.1" 200 OK
+D:\AI\server.py:64: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+INFO:     Started server process [13704]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:9178 (Press CTRL+C to quit)
+
+======================================================
+  Local AI Chat is Running
+======================================================
+  Local:     http://localhost:9178
+  Network:   http://192.168.61.1:9178
+  Network:   http://192.168.132.1:9178
+  Network:   http://172.26.112.1:9178
+  Network:   http://192.168.101.68:9178
+  Backend:   Ollama (本地)
+  Ollama:    http://localhost:11434
+  Model:     qwen2.5:3b
+======================================================
+  Ctrl+C to stop the server
+======================================================
+
+INFO:     127.0.0.1:57381 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57793 - "POST /api/workspace/edit/stream HTTP/1.1" 200 OK
+2026-06-25 14:38:22,941 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:38:22,942 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+2026-06-25 14:38:24,035 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:57855 - "POST /api/workspace/edit/stream HTTP/1.1" 200 OK
+2026-06-25 14:38:27,994 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:38:27,995 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+2026-06-25 14:38:28,734 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+2026-06-25 14:38:39,387 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:38:39,387 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+2026-06-25 14:38:44,431 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:58002 - "POST /api/workspace/edit HTTP/1.1" 200 OK
+2026-06-25 14:38:55,045 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:38:55,046 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+2026-06-25 14:39:03,244 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:58085 - "POST /api/workspace/edit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65291 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:54096 - "GET /api/settings/backends HTTP/1.1" 200 OK
+2026-06-25 14:39:21,377 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:39:21,378 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:65291 - "GET /api/health HTTP/1.1" 200 OK
+2026-06-25 14:39:21,820 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:39:21,821 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:65291 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65291 - "POST /api/workspace/open HTTP/1.1" 200 OK
+2026-06-25 14:39:36,380 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:39:36,382 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:63510 - "POST /api/security/scan HTTP/1.1" 200 OK
+2026-06-25 14:39:56,077 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:39:56,078 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+2026-06-25 14:40:13,644 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:61789 - "POST /api/workspace/edit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56939 - "POST /api/security/scan HTTP/1.1" 200 OK
+2026-06-25 14:40:26,653 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:63510 - "POST /api/workspace/review HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55222 - "POST /api/security/scan HTTP/1.1" 200 OK
+2026-06-25 14:41:08,070 [INFO] 流式: 知识库命中，注入上下文
+INFO:     127.0.0.1:57351 - "POST /api/chat/stream HTTP/1.1" 200 OK
+2026-06-25 14:41:08,545 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:41:08,546 [INFO] [Ollama] 流式使用模型: qwen2.5:3b
+INFO:     127.0.0.1:50739 - "POST /api/chat/stream HTTP/1.1" 200 OK
+2026-06-25 14:41:21,621 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:41:21,623 [INFO] [Ollama] 流式使用模型: qwen2.5:3b
+2026-06-25 14:41:22,971 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:60015 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49368 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:54038 - "GET /api/settings/backends HTTP/1.1" 200 OK
+2026-06-25 14:47:02,029 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:47:02,030 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:49368 - "GET /api/health HTTP/1.1" 200 OK
+2026-06-25 14:47:02,485 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:47:02,486 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:49368 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49368 - "POST /api/chat/stream HTTP/1.1" 200 OK
+2026-06-25 14:47:04,001 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:47:04,002 [INFO] [Ollama] 流式使用模型: qwen2.5:3b
+2026-06-25 14:47:11,199 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:53152 - "POST /api/chat/stream HTTP/1.1" 200 OK
+2026-06-25 14:47:18,127 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:47:18,130 [INFO] [Ollama] 流式使用模型: qwen2.5:3b
+2026-06-25 14:47:19,546 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:61118 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:63287 - "GET /api/settings/backends HTTP/1.1" 200 OK
+2026-06-25 14:48:05,926 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:48:05,927 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:61118 - "GET /api/health HTTP/1.1" 200 OK
+2026-06-25 14:48:06,386 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:48:06,388 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:61118 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63032 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57354 - "GET /api/settings/backends HTTP/1.1" 200 OK
+2026-06-25 14:48:17,232 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:48:17,233 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:63032 - "GET /api/health HTTP/1.1" 200 OK
+2026-06-25 14:48:17,720 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:48:17,722 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:63032 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56696 - "POST /api/chat/stream HTTP/1.1" 200 OK
+2026-06-25 14:50:32,750 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:50:32,752 [INFO] [Ollama] 流式使用模型: qwen2.5:3b
+2026-06-25 14:50:33,883 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:53213 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53213 - "GET /js/app.js?v=20260625 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51941 - "GET /api/settings/backends HTTP/1.1" 200 OK
+2026-06-25 14:50:40,806 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:50:40,807 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:53213 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53213 - "GET / HTTP/1.1" 304 Not Modified
+2026-06-25 14:50:41,241 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:50:41,241 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:52518 - "GET /api/settings/backends HTTP/1.1" 200 OK
+2026-06-25 14:50:41,509 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:50:41,510 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:53213 - "GET /api/health HTTP/1.1" 200 OK
+2026-06-25 14:50:41,985 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:50:41,985 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:53213 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53213 - "POST /api/chat/stream HTTP/1.1" 200 OK
+2026-06-25 14:50:42,837 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:50:42,838 [INFO] [Ollama] 流式使用模型: qwen2.5:3b
+2026-06-25 14:50:43,763 [INFO] HTTP Request: POST http://localhost:11434/api/chat "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:51302 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51782 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:51782 - "GET /js/app.js?v=20260625 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54867 - "GET /api/settings/backends HTTP/1.1" 200 OK
+2026-06-25 14:53:49,494 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:53:49,497 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:51782 - "GET /api/health HTTP/1.1" 200 OK
+2026-06-25 14:53:50,009 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:53:50,010 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:51782 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58360 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:58360 - "GET /js/app.js?v=20260625 HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:56385 - "GET /api/settings/backends HTTP/1.1" 200 OK
+2026-06-25 14:55:54,364 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:55:54,365 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:58360 - "GET /api/health HTTP/1.1" 200 OK
+2026-06-25 14:55:54,835 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:55:54,835 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:58360 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     192.168.101.68:50499 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.101.68:50499 - "GET /lib/atom-one-dark.min.css HTTP/1.1" 200 OK
+INFO:     192.168.101.68:56784 - "GET /css/style.css?v=20260624 HTTP/1.1" 200 OK
+INFO:     192.168.101.68:57498 - "GET /lib/marked.min.js HTTP/1.1" 200 OK
+INFO:     192.168.101.68:49963 - "GET /lib/purify.min.js HTTP/1.1" 200 OK
+INFO:     192.168.101.68:53482 - "GET /lib/highlight.min.js HTTP/1.1" 200 OK
+INFO:     192.168.101.68:64708 - "GET /js/app.js?v=20260625 HTTP/1.1" 200 OK
+INFO:     192.168.101.68:53482 - "GET /api/settings/backends HTTP/1.1" 200 OK
+2026-06-25 14:56:11,066 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:56:11,066 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     192.168.101.68:64708 - "GET /api/health HTTP/1.1" 200 OK
+2026-06-25 14:56:11,699 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 14:56:11,701 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     192.168.101.68:64708 - "GET /api/health HTTP/1.1" 200 OK

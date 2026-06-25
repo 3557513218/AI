@@ -1,116 +1,407 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chat - 智能助手</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-    <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Studio — 智能编程工作台</title>
+<link rel="stylesheet" href="lib/atom-one-dark.min.css">
+<link rel="stylesheet" href="css/style.css?v=20260624">
 </head>
 <body>
-    <!-- 侧边栏 -->
+<div class="app-container">
+
+  <!-- ====== 顶部栏 ====== -->
+  <header class="top-bar">
+    <div class="top-bar-left">
+      <button class="top-btn sidebar-toggle" onclick="toggleSidebar()" title="切换侧栏">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+      </button>
+      <div class="app-logo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        <span>AI Studio</span>
+      </div>
+      <div class="workspace-selector" id="workspaceSelector">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+        <span id="workspaceDisplay" class="workspace-display">选择工作空间</span>
+      </div>
+    </div>
+    <div class="top-bar-center" id="tabBar">
+      <div class="tab active" data-tab="chat" onclick="switchTab('chat')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        对话
+      </div>
+      <div class="tab" data-tab="editor" onclick="switchTab('editor')" id="editorTab">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
+        编辑器
+      </div>
+    </div>
+    <div class="top-bar-right">
+      <select class="model-select" id="modelSelect" onchange="changeModel()">
+      </select>
+      <button class="top-btn" onclick="openBackendConfig()" title="后端配置">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="3" ry="5"/><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </button>
+      <button class="top-btn" onclick="toggleDarkMode()" title="切换主题">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      </button>
+      <div class="connection-status" id="connectionStatus">
+        <span class="status-dot" id="statusDot"></span>
+        <span class="status-text" id="statusText">检查中...</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ====== 主区域 ====== -->
+  <div class="main-area">
+
+    <!-- ====== 侧边栏 ====== -->
     <aside class="sidebar" id="sidebar">
+      <!-- 聊天模式侧栏 -->
+      <div class="sidebar-panel active" id="sidebarChat">
         <div class="sidebar-header">
-            <h2>AI Chat <span class="version-badge">IKuade研发版</span></h2>
-            <button class="btn-icon" onclick="toggleSidebar()" title="关闭侧边栏">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-            </button>
-        </div>
-        <button class="new-chat-btn" onclick="newChat()">
+          <h3>对话记录</h3>
+          <button class="btn-icon" onclick="newChat()" title="新对话">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-            新对话
-        </button>
-        <div class="conversation-list" id="conversationList">
-            <!-- 对话列表由 JS 动态生成 -->
+          </button>
         </div>
+        <div class="conversation-list" id="conversationList"></div>
         <div class="sidebar-footer">
-            <div class="status-indicator" id="statusIndicator">
-                <span class="status-dot" id="statusDot"></span>
-                <span id="statusText">检查连接...</span>
-            </div>
+          <button class="sidebar-footer-btn" id="openWorkspaceBtn" onclick="openWorkspaceDialog()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+            打开工作空间
+          </button>
         </div>
+      </div>
+      <!-- 工作空间模式侧栏 -->
+      <div class="sidebar-panel" id="sidebarWorkspace">
+        <!-- 未打开工作空间时的视图 -->
+        <div class="workspace-empty-view" id="workspaceEmptyView">
+          <div class="sidebar-header">
+            <h3>暂无选择工作空间</h3>
+          </div>
+          <div class="sidebar-recent-workspaces" id="sidebarRecentList"></div>
+          <div class="sidebar-footer">
+            <button class="sidebar-footer-btn" onclick="openWorkspaceDialog()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+              打开工作空间
+            </button>
+          </div>
+        </div>
+        <!-- 已打开工作空间时的视图 -->
+        <div class="workspace-open-view" id="workspaceOpenView">
+          <div class="sidebar-header">
+            <h3 id="workspaceTitle">工作空间</h3>
+            <div class="sidebar-header-actions">
+              <button class="btn-icon" onclick="refreshWorkspace()" title="刷新">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+              </button>
+              <button class="btn-icon" onclick="showWorkspaceSettings()" title="设置">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+              </button>
+              <button class="btn-icon" onclick="closeWorkspace()" title="关闭工作空间">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="file-tree" id="fileTree">
+            <div class="file-tree-empty">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+              <p>尚未打开工作空间</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </aside>
 
-    <!-- 主区域 -->
-    <main class="main-content" id="mainContent">
-        <!-- 顶部栏 -->
-        <header class="top-bar">
-            <button class="btn-icon" onclick="toggleSidebar()" title="打开侧边栏">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
-            </button>
-            <div class="model-selector">
-                <select id="modelSelect" onchange="changeModel()">
-                    <option value="">自动选择</option>
-                </select>
-            </div>
-            <button class="btn-icon" onclick="clearChat()" title="清空对话">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
-            </button>
-        </header>
+    <!-- ====== 内容区域 ====== -->
+    <div class="content-area" id="contentArea">
 
-        <!-- 聊天区域 -->
+      <!-- ====== 聊天视图 ====== -->
+      <div class="view active" id="viewChat">
         <div class="chat-container" id="chatContainer">
-            <!-- 欢迎页面 -->
-            <div class="welcome" id="welcomeScreen">
-                <div class="welcome-icon">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                </div>
-                <h1>有什么我可以帮助你的？</h1>
-                <p class="welcome-subtitle">上传图片分析内容 · 上传代码分析解读 · 对话提问获得答案</p>
-                <div class="welcome-tips">
-                    <div class="tip-card">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-                        <span>上传图片进行分析</span>
-                    </div>
-                    <div class="tip-card">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>
-                        <span>上传代码文件解读</span>
-                    </div>
-                    <div class="tip-card">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                        <span>编程问题与Debug</span>
-                    </div>
-                </div>
+          <div class="messages" id="messages"></div>
+          <div class="welcome-screen" id="welcomeScreen">
+            <div class="welcome-graphic">
+              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
             </div>
+            <h1>有什么我可以帮你的？</h1>
+            <p class="welcome-sub">编程 · 分析 · 问答 · 创作</p>
+            <div class="welcome-suggestions">
+              <div class="suggestion-chip" onclick="quickSend('帮我写一个 Python 快速排序算法')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
+                写代码
+              </div>
+              <div class="suggestion-chip" onclick="quickSend('解释一下这段代码的工作原理')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                解释代码
+              </div>
+              <div class="suggestion-chip" onclick="quickSend('帮我把这个项目改成 MVC 架构')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+                重构项目
+              </div>
+              <div class="suggestion-chip" onclick="quickSend('检查这段代码有什么问题')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                审查代码
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="input-area" id="inputArea">
+          <div class="file-preview" id="filePreview" style="display:none;">
+            <div class="file-preview-content">
+              <span class="fp-icon" id="fileIcon">📄</span>
+              <span class="fp-name" id="fileName"></span>
+              <span class="fp-size" id="fileSize"></span>
+            </div>
+            <button class="fp-remove" onclick="removeFile()">&times;</button>
+          </div>
+          <div class="input-wrapper">
+            <button class="btn-attach" onclick="document.getElementById('fileInput').click()" title="上传文件">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+            </button>
+            <input type="file" id="fileInput" accept="image/*,.py,.js,.ts,.jsx,.tsx,.html,.css,.java,.cpp,.c,.go,.rs,.rb,.php,.swift,.kt,.sql,.md,.json,.xml,.yaml,.yml,.sh,.bash,.txt,.csv,.vue,.svelte,.dart,.lua,.r,.pl" style="display:none" onchange="handleFileSelect(event)">
+            <div class="input-editor-wrapper">
+              <textarea
+                id="messageInput"
+                rows="1"
+                placeholder="输入消息... (Enter 发送, Shift+Enter 换行)"
+                autofocus
+              ></textarea>
+            </div>
+            <button class="btn-send" id="sendBtn" onclick="sendMessage()" disabled>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2 21L23 12 2 3v7l15 2-15 2v7z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
 
-            <!-- 消息列表 -->
-            <div class="messages" id="messages"></div>
+      <!-- ====== 编辑器视图 ====== -->
+      <div class="view" id="viewEditor">
+        <div class="editor-layout">
+          <div class="editor-main">
+            <div class="editor-tabs" id="editorTabs">
+              <div class="editor-tabs-empty" id="editorTabsEmpty">选择文件开始编辑</div>
+            </div>
+            <div class="editor-container" id="editorContainer">
+              <div class="editor-placeholder" id="editorPlaceholder">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
+                <h3>打开文件开始编辑</h3>
+                <p>从左侧文件树选择一个文件，或在聊天中让 AI 生成代码</p>
+              </div>
+              <div class="editor-real" id="editorReal" style="display:none;"></div>
+            </div>
+            <div class="diff-container" id="diffContainer" style="display:none;">
+              <div class="diff-header">
+                <span class="diff-title">变更对比</span>
+                <div class="diff-actions">
+                  <button class="diff-btn" onclick="acceptChangesWithSecurity()">✓ 安全接受</button>
+                  <button class="diff-btn secondary" onclick="rejectChanges()">✕ 拒绝</button>
+                </div>
+              </div>
+              <div class="diff-editor" id="diffEditor"></div>
+            </div>
+          </div>
+          <div class="editor-chat-panel" id="editorChatPanel">
+            <div class="editor-chat-header">
+              <span>AI 助手</span>
+              <button class="btn-icon" onclick="clearEditorChat()" title="清空">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+              </button>
+            </div>
+            <div class="editor-chat-messages" id="editorChatMessages">
+              <div class="editor-chat-welcome">
+                <p>在编辑器中打开文件后，可以：</p>
+                <ul>
+                  <li>• 要求修改代码</li>
+                  <li>• 检查代码错误</li>
+                  <li>• 修复问题</li>
+                  <li>• 生成新功能</li>
+                </ul>
+              </div>
+            </div>
+            <div class="editor-chat-input">
+              <textarea id="editorChatInput" rows="2" placeholder="输入对代码的要求..." onkeydown="editorChatKeydown(event)"></textarea>
+              <div class="editor-chat-tools">
+                <button class="ec-btn" onclick="reviewCurrentFile()" title="审查代码">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                  审查
+                </button>
+                <button class="ec-btn" onclick="fixCurrentFile()" title="修复错误">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 1l-6 6M11 13l-6 6M1 23l6-6m5-5l6-6"/></svg>
+                  修复
+                </button>
+                <button class="ec-btn" onclick="securityCheckCurrentFile()" title="安全扫描" style="color:var(--warning);">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  安全
+                </button>
+                <button class="ec-btn primary" onclick="sendEditorChat()" title="发送到 AI">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                  发送
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ====== 状态栏 ====== -->
+  <footer class="status-bar">
+    <div class="status-left">
+      <span class="status-item" id="statusWorkspace">工作空间: 无</span>
+      <span class="status-item" id="statusFileCount"></span>
+    </div>
+    <div class="status-right">
+      <span class="status-item" id="statusBackend">后端: 未连接</span>
+      <span class="status-item" id="statusCursor">Ln 1, Col 1</span>
+    </div>
+  </footer>
+</div>
+
+<!-- ====== 工作空间对话框 ====== -->
+<div class="modal-overlay" id="workspaceModal" style="display:none;" onclick="closeModalOnOverlay(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>打开工作空间</h3>
+      <button class="btn-icon" onclick="closeModal('workspaceModal')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="folder-picker-area">
+        <button class="modal-btn primary" onclick="pickDirectory()" style="font-size:14px;padding:12px 24px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:8px;"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+          选择文件夹
+        </button>
+        <div style="margin-top:8px;font-size:12px;color:var(--text-secondary);">或手动输入路径</div>
+        <input type="text" class="modal-input" id="workspacePathInput" placeholder="例如: D:\Projects\my-app" onkeydown="if(event.key==='Enter')confirmOpenWorkspace()" style="margin-top:4px;">
+      </div>
+      <div class="modal-recents" id="recentWorkspaces">
+        <div class="modal-label" style="margin-top:16px;">最近使用</div>
+        <div id="recentWorkspaceList"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn secondary" onclick="closeModal('workspaceModal')">取消</button>
+      <button class="modal-btn primary" onclick="confirmOpenWorkspace()">打开</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 设置对话框 ====== -->
+<div class="modal-overlay" id="settingsModal" style="display:none;" onclick="closeModalOnOverlay(event)">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3>工作空间设置</h3>
+      <button class="btn-icon" onclick="closeModal('settingsModal')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <label class="modal-label">当前工作空间</label>
+      <div class="settings-path" id="settingsPath">-</div>
+
+      <label class="modal-label" style="margin-top:16px;">忽略的文件/目录（逗号分隔）</label>
+      <input type="text" class="modal-input" id="settingsIgnoreInput" placeholder="node_modules, .git, dist">
+
+      <label class="modal-label" style="margin-top:16px;">文件过滤</label>
+      <input type="text" class="modal-input" id="settingsFilterInput" placeholder="*.py, *.js, *.ts（留空显示全部）">
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn primary" onclick="closeModal('settingsModal')">完成</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 后端配置对话框 (CC Switch 风格) ====== -->
+<div class="modal-overlay" id="backendModal" style="display:none;">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>AI 后端配置</h3>
+      <button class="btn-icon" onclick="closeModal('backendModal')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <!-- 内置后端选择 -->
+      <label class="modal-label">当前后端</label>
+      <div class="backend-tabs" id="backendTabs">
+        <div class="backend-tab active" data-backend="ollama" onclick="activateBackendTab('ollama')">
+          <span class="bt-icon">🖥️</span>
+          <span class="bt-name">Ollama</span>
+          <span class="bt-badge">本地</span>
+        </div>
+        <div class="backend-tab" data-backend="dashscope" onclick="activateBackendTab('dashscope')">
+          <span class="bt-icon">☁️</span>
+          <span class="bt-name">通义千问</span>
+          <span class="bt-badge">阿里云</span>
+        </div>
+        <div class="backend-tab" data-backend="custom" onclick="activateBackendTab('custom')" id="customBackendTab">
+          <span class="bt-icon">🤖</span>
+          <span class="bt-name">自定义</span>
+          <span class="bt-badge">API</span>
+        </div>
+      </div>
+
+      <!-- 自定义后端表单 -->
+      <div id="customBackendForm" style="display:none;">
+        <div class="bc-section-title">自定义后端设置</div>
+
+        <label class="modal-label">名称</label>
+        <input type="text" class="modal-input" id="bcName" placeholder="例如: OpenRouter, Groq, 本地 vLLM">
+
+        <label class="modal-label" style="margin-top:12px;">API 地址</label>
+        <input type="text" class="modal-input" id="bcUrl" placeholder="https://api.openai.com/v1">
+        <div class="modal-hint">支持 OpenAI 兼容格式和 Anthropic 格式</div>
+
+        <label class="modal-label" style="margin-top:12px;">API Key</label>
+        <div class="api-key-input">
+          <input type="password" class="modal-input" id="bcApiKey" placeholder="sk-..." style="padding-right:40px;">
+          <button class="api-key-toggle" onclick="toggleApiKeyVisibility()" title="显示/隐藏">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
         </div>
 
-        <!-- 输入区域 -->
-        <div class="input-area">
-            <div class="file-preview" id="filePreview" style="display:none;">
-                <div class="file-preview-content">
-                    <span class="file-icon" id="fileIcon">📄</span>
-                    <span class="file-name" id="fileName"></span>
-                    <span class="file-size" id="fileSize"></span>
-                </div>
-                <button class="file-remove" onclick="removeFile()">&times;</button>
-            </div>
-            <div class="input-wrapper">
-                <button class="btn-icon btn-upload" onclick="document.getElementById('fileInput').click()" title="上传文件">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-                </button>
-                <input type="file" id="fileInput" accept="image/*,.py,.js,.ts,.jsx,.tsx,.html,.css,.java,.cpp,.c,.go,.rs,.rb,.php,.swift,.kt,.sql,.md,.json,.xml,.yaml,.yml,.sh,.bash,.txt,.csv,.vue,.svelte,.dart,.lua,.r,.pl" style="display:none" onchange="handleFileSelect(event)">
-                <div class="input-editor">
-                    <textarea
-                        id="messageInput"
-                        rows="1"
-                        placeholder="输入消息，Enter 发送，Shift+Enter 换行..."
-                        autofocus
-                    ></textarea>
-                </div>
-                <button class="btn-send" id="sendBtn" onclick="sendMessage()" disabled>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M2 21L23 12 2 3v7l15 2-15 2v7z"/></svg>
-                </button>
-            </div>
-            <p class="input-hint">AI 回复仅供参考，请验证重要信息</p>
-        </div>
-    </main>
+        <label class="modal-label" style="margin-top:12px;">模型</label>
+        <input type="text" class="modal-input" id="bcModel" placeholder="gpt-4o / claude-sonnet-4-20250514">
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.11/purify.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script src="js/app.js"></script>
+        <label class="modal-label" style="margin-top:12px;">协议</label>
+        <select class="modal-input" id="bcProvider">
+          <option value="openai">OpenAI 兼容</option>
+          <option value="anthropic">Anthropic</option>
+        </select>
+
+        <div class="bc-actions">
+          <button class="modal-btn secondary" onclick="testBackendConnection()" id="testBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            测试连接
+          </button>
+          <button class="modal-btn primary" onclick="saveCustomBackend()">保存配置</button>
+        </div>
+
+        <div id="testResult" class="test-result" style="display:none;"></div>
+      </div>
+
+      <!-- 已保存的自定义后端列表 -->
+      <div id="savedBackends" style="margin-top:16px;">
+        <div class="bc-section-title">已保存的自定义后端</div>
+        <div id="savedBackendsList">
+          <div style="font-size:12px;color:var(--text-secondary);padding:8px 0;">暂无自定义后端配置</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn secondary" onclick="closeModal('backendModal')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script src="lib/marked.min.js"></script>
+<script src="lib/purify.min.js"></script>
+<script src="lib/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+<script src="js/app.js?v=20260625"></script>
 </body>
 </html>
