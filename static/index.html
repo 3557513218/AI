@@ -291,7 +291,7 @@
 </div>
 
 <!-- ====== 设置对话框 ====== -->
-<div class="modal-overlay" id="settingsModal" style="display:none;" onclick="closeModalOnOverlay(event)">
+<div class="modal-overlay" id="settingsModal" style="display:none;">
   <div class="modal modal-sm">
     <div class="modal-header">
       <h3>工作空间设置</h3>
@@ -310,7 +310,7 @@
       <input type="text" class="modal-input" id="settingsFilterInput" placeholder="*.py, *.js, *.ts（留空显示全部）">
     </div>
     <div class="modal-footer">
-      <button class="modal-btn primary" onclick="closeModal('settingsModal')">完成</button>
+      <button class="modal-btn primary" onclick="saveWorkspaceSettings()">完成</button>
     </div>
   </div>
 </div>

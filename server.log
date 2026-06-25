@@ -581,3 +581,35 @@ INFO:     192.168.101.68:64708 - "GET /api/health HTTP/1.1" 200 OK
 2026-06-25 14:56:11,699 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
 2026-06-25 14:56:11,701 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
 INFO:     192.168.101.68:64708 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52201 - "POST /api/workspace/open HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52201 - "POST /api/workspace/open HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49301 - "POST /api/workspace/open HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49301 - "POST /api/workspace/open HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49301 - "POST /api/workspace/open HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58149 - "POST /api/workspace/open HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58149 - "POST /api/workspace/open HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58213 - "POST /api/workspace/open HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58213 - "POST /api/workspace/open HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58213 - "POST /api/workspace/open HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58213 - "POST /api/workspace/open HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58213 - "POST /api/workspace/read HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49432 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49432 - "GET /js/app.js?v=20260625 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59803 - "GET /api/settings/backends HTTP/1.1" 200 OK
+2026-06-25 15:11:55,243 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 15:11:55,244 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:49432 - "GET /api/health HTTP/1.1" 200 OK
+2026-06-25 15:11:55,747 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 15:11:55,748 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:49432 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49432 - "POST /api/workspace/open HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64069 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64069 - "GET /js/app.js?v=20260625 HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:53309 - "GET /api/settings/backends HTTP/1.1" 200 OK
+2026-06-25 15:12:45,968 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 15:12:45,969 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:64069 - "GET /api/health HTTP/1.1" 200 OK
+2026-06-25 15:12:46,438 [INFO] HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+2026-06-25 15:12:46,440 [INFO] 可用模型: ['qwen2.5:3b', 'qwen2.5vl:7b']
+INFO:     127.0.0.1:64069 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60153 - "POST /api/workspace/open HTTP/1.1" 404 Not Found

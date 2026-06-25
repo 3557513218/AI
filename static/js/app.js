@@ -15,6 +15,8 @@ const AppState = {
   currentModel: '',
   // Workspace
   workspace: { open: false, path: null, name: null, tree: [], dirHandle: null },
+  ignoreFilter: '',    // 忽略的文件/目录（逗号分隔）
+  fileFilter: '',      // 文件过滤（逗号分隔，如 *.py, *.js）
   openFiles: [],        // [{path, name, language, content, dirty}]
   activeFilePath: null,
   fileHandles: {},      // path -> FileSystemFileHandle
@@ -708,7 +710,9 @@ function renderFileTree(tree, container, depth) {
   if (depth === 0) {
     container.innerHTML = '';
     for (const item of tree) {
-      renderTreeItem(item, container, 0);
+      if (shouldShowFile(item, 0)) {
+        renderTreeItem(item, container, 0);
+      }
     }
   }
 }
@@ -1335,7 +1339,40 @@ async function sendEditorChatDirect(mode) {
 
 function showWorkspaceSettings() {
   El.settingsPath.textContent = AppState.workspace.path || '-';
+  El.settingsIgnoreInput.value = AppState.ignoreFilter;
+  El.settingsFilterInput.value = AppState.fileFilter;
   El.settingsModal.style.display = 'flex';
+}
+
+function saveWorkspaceSettings() {
+  AppState.ignoreFilter = El.settingsIgnoreInput.value.trim();
+  AppState.fileFilter = El.settingsFilterInput.value.trim();
+  closeModal('settingsModal');
+  // 重新渲染文件树应用过滤
+  if (AppState.workspace?.tree) {
+    renderFileTree(AppState.workspace.tree);
+  }
+}
+
+function shouldShowFile(item, depth) {
+  // 忽略过滤
+  if (AppState.ignoreFilter) {
+    const ignores = AppState.ignoreFilter.split(',').map(s => s.trim()).filter(Boolean);
+    for (const ign of ignores) {
+      if (item.name === ign || item.name.includes(ign)) return false;
+    }
+  }
+  // 文件类型过滤（只对文件生效）
+  if (item.type !== 'directory' && AppState.fileFilter) {
+    const filters = AppState.fileFilter.split(',').map(s => s.trim()).filter(Boolean);
+    if (filters.length > 0) {
+      return filters.some(f => {
+        if (f.startsWith('*.')) return item.name.endsWith(f.slice(1));
+        return item.name === f || item.name.includes(f);
+      });
+    }
+  }
+  return true;
 }
 
 // ===================================================================
